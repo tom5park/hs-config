@@ -21,6 +21,46 @@ k:bind({}, 'q', function() k3:enter() end, function() k3:exit() end, function() 
 hs.hotkey.bind({'cmd'}, '1', function() hs.eventtap.keyStroke({'cmd'}, 'left') end)
 hs.hotkey.bind({'cmd'}, '2', function() hs.eventtap.keyStroke({'cmd'}, 'right') end)
 
+--------------------------------------------------------------
+-- 텍스트 편집기 단축키
+--------------------------------------------------------------
+k:bind('', '2', function() hs.osascript.applescript([[
+	tell application "Atom"
+		tell application "Finder" to set filePath to POSIX path of first item of (get selection as alias list)
+		activate
+		open filePath
+	end tell
+]]) end)
+
+--------------------------------------------------------------
+-- 사전 단축키
+--------------------------------------------------------------
+k:bind('', '3', function()
+	fastKeyStroke({'cmd'}, 'c')
+	hs.osascript.applescript([[
+		--tell application "System Events" to keystroke "c" using command down
+		tell application "Allkdic"
+			activate
+		end tell
+		tell application "System Events" to tell process "올ㅋ사전"
+			tell (menu bar item 1 of menu bar 1)
+				click
+				--keystroke "v" using command down
+				--key code 36
+			end tell
+		end tell
+	]])
+	fastKeyStroke({'cmd'}, 'v')
+	fastKeyStroke({}, 'return')
+end)
+
+--------------------------------------------------------------
+-- 화면캡쳐
+--------------------------------------------------------------
+k:bind('', '4', function() hs.osascript.applescript([[
+	do shell script "screencapture -i -c"
+]]) end)
+
 hs.window.filter.new({'GroovyConsole'})
     :subscribe(hs.window.filter.windowFocused,function()
 		k:bind('', 'n', function() fastKeyStroke({'cmd'}, 'left') end)
@@ -104,32 +144,7 @@ k:bind('', 'f4', function()
 	k:enter()
 end)
 
-k:bind('', '2', function() hs.osascript.applescript([[
-	tell application "Atom"
-		tell application "Finder" to set filePath to POSIX path of first item of (get selection as alias list)
-		activate
-		open filePath
-	end tell
-]]) end)
 
-k:bind('', '3', function()
-	fastKeyStroke({'cmd'}, 'c')
-	hs.osascript.applescript([[
-		--tell application "System Events" to keystroke "c" using command down
-		tell application "Allkdic"
-			activate
-		end tell
-		tell application "System Events" to tell process "올ㅋ사전"
-			tell (menu bar item 1 of menu bar 1)
-				click
-				--keystroke "v" using command down
-				--key code 36
-			end tell
-		end tell
-	]])
-	fastKeyStroke({'cmd'}, 'v')
-	fastKeyStroke({}, 'return')
-end)
 
 k:bind('', '8', function() hs.osascript.applescript([[
 	tell application "TextEdit"
@@ -137,14 +152,6 @@ k:bind('', '8', function() hs.osascript.applescript([[
 		activate
 		open filePath
 	end tell
-]]) end)
-
-
---------------------------------------------------------------
--- 화면캡쳐
---------------------------------------------------------------
-k:bind('', '4', function() hs.osascript.applescript([[
-	do shell script "screencapture -i -c"
 ]]) end)
 
 k:bind('', 'f12', function()
