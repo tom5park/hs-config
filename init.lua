@@ -11,7 +11,7 @@ end
 k = hs.hotkey.modal.new({}, "F17")
 k2 = hs.hotkey.modal.new({}, "F16")
 k3 = hs.hotkey.modal.new({}, "F15")
-hs.hotkey.bind({}, 'F18', function() k:enter() end, function() k:exit() end, function() end)
+F18 = hs.hotkey.bind({}, 'F18', function() k:enter() end, function() k:exit() end, function() end)
 k:bind({}, 'tab', function() k2:enter() end, function() k2:exit() end, function() end)
 k:bind({}, 'q', function() k3:enter() end, function() k3:exit() end, function() end)
 
@@ -61,6 +61,9 @@ k:bind('', '4', function() hs.osascript.applescript([[
 	do shell script "screencapture -i -c"
 ]]) end)
 
+--------------------------------------------------------------
+-- GroovyConsole 필터
+--------------------------------------------------------------
 hs.window.filter.new({'GroovyConsole'})
     :subscribe(hs.window.filter.windowFocused,function()
 		k:bind('', 'n', function() fastKeyStroke({'cmd'}, 'left') end)
@@ -74,6 +77,13 @@ hs.window.filter.new({'GroovyConsole'})
 		k2:bind('', 'n', function() fastKeyStroke({'shift'}, 'home') end)
 		k2:bind('', '/', function() fastKeyStroke({'shift'}, 'end') end)
 	end)
+
+--------------------------------------------------------------
+-- 화면공유 필터
+--------------------------------------------------------------
+hs.window.filter.new(false):setAppFilter('화면 공유',{allowTitles='tom5mini'})
+    :subscribe(hs.window.filter.windowFocused,function() F18:disable() end)
+    :subscribe(hs.window.filter.windowUnfocused,function() F18:enable() end)
 
 k:bind('', 'j', function() fastKeyStroke({}, 'left') end, nil, function() fastKeyStroke({}, 'left') end)
 k:bind('', ';', function() fastKeyStroke({}, 'right') end, nil, function() fastKeyStroke({}, 'right') end)
@@ -142,7 +152,20 @@ end)
 
 k:bind('', 'f4', function()
 	k:exit()
-	local u = hs.window.get('BlueStacks 앱 플레이어'):isVisible()
+	print('----------------------')
+	--[[
+	local a = hs.application.get('화면 공유')
+	local ws = a:allWindows()
+
+	print(ws[1]:title())
+	ws[1]:focus()
+	counter = 0
+	for index in pairs(ws) do
+	    counter = counter + 1
+	end
+	print(counter)
+	--]]
+	local u = hs.window.get('tom5mini'):title()
 	print(u)
 	print('----------------------')
 	k:enter()
@@ -282,4 +305,8 @@ mkbook = function(bookName, page)
 	end
 	hs.notify.new({title="Hammerspoon", informativeText="finished: "..bookName}):send()
 end
+
+--------------------------------------------------------------
+-- 로드 성공 메시지 출력
+--------------------------------------------------------------
 hs.notify.new({title="Hammerspoon", informativeText="Successfully reloaded"}):send()
