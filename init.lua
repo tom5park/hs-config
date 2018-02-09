@@ -216,16 +216,27 @@ test3 = function(a, b)
 	hs.notify.new({title="Hammerspoon", informativeText=''..x}):send()
 end
 
+
+--local w = hs.application.get('BlueStacks'):allWindows()[1]
+--w:focus()
+--local pos = w:topLeft()
+--local size = w:size()
+--print(pos)
+--print(size)
+--hs.execute(string.format('screencapture  -R%d,%d,%d,%d /Users/tom5park/a.png', pos.x, pos.y + 60, size.w, size.h - 110))
+
 --------------------------------------------------------------
 -- make book
 --------------------------------------------------------------
 mkbook = function(bookName, page)
 	hs.notify.new({title="Hammerspoon", informativeText="start: "..bookName}):send()
 	local logFile = os.tmpname()
-	local w = hs.window.get('BlueStacks 앱 플레이어')
+	local w = hs.application.get('BlueStacks'):allWindows()[1]
 	w:focus()
 	local pos = w:topLeft()
 	local size = w:size()
+	print(pos)
+	print(size)
 	local sc = hs.screen.primaryScreen()
 	local noChange = 0
 	local i = tonumber(page)
@@ -236,6 +247,7 @@ mkbook = function(bookName, page)
 	local temp1 = os.tmpname()
 	local temp2 = os.tmpname()
 	local mt, mr, mb, ml = 45, 0, 95, 0
+	local mt, mr, mb, ml = 22, 0, 48, 0
 	--local mt, mr, mb, ml = 150, 150, 200, 150
 	local diff = 0
 
@@ -243,50 +255,52 @@ mkbook = function(bookName, page)
 		hs.execute('mkdir -p ~/.book')
 		hs.execute('rm -rif ~/.book/*')
 	end
+	hs.eventtap.leftClick({x = 1, y = pos.y })
 	while noChange < 10 do
-		w = hs.window.get('BlueStacks 앱 플레이어')
+		--w = hs.application.get('BlueStacks'):allWindows()[1]
 		if w == nil or not w:isVisible() then
 			break
 		end
 		local f = string.format('~/.book/%04d.png', i)
 		hs.timer.usleep(300000)
-		hs.execute(string.format('screencapture -o -l%d %s', w:id(), f))
-		hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -crop %dx%d+%d+%d %s %s', size.w * 2 - (ml + mr), size.h * 2 - (mt + mb), ml, mt, f, f))
+		hs.execute(string.format('screencapture  -R%d,%d,%d,%d %s', pos.x + 2, pos.y + 60, size.w - 4, size.h - 110, f))
+		--hs.execute(string.format('screencapture -o -l%d %s', w:id(), f))
+		--hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -crop %dx%d+%d+%d %s %s', size.w - (ml + mr), size.h - (mt + mb), ml, mt, f, f))
 		--local kk = string.format('/usr/local/opt/imagemagick/bin/convert -crop %dx%d+%d+%d %s %s', size.w, size.h -70, 0, 22, f, f)
 		u = hs.execute(string.format('/usr/local/opt/imagemagick/bin/compare -metric ae -fuzz 5%% %s ~/.book/%04d.png null: 2>&1', f, i - 1))
 		diff = tonumber(u)
 		if diff == nil or diff > 40000 then
-			hs.eventtap.leftClick({x = pos.x + size.w - 20, y = pos.y + size.h / 2 })
+			hs.eventtap.leftClick({x = pos.x + size.w - 1, y = pos.y + size.h / 2 })
 			i = i + 1
 			noChange = 0
 		elseif diff == 0 then
 			noChange = noChange + 1
 			if noChange % 4 == 3 then
-				hs.eventtap.leftClick({x = pos.x + size.w - 20, y = pos.y + size.h / 2 })
+				hs.eventtap.leftClick({x = pos.x + size.w - 1, y = pos.y + size.h / 2 })
 				hs.execute(string.format('echo "[CLICK] %04d - %04d = %s" >> %s', i - 1, i, diff, logFile))
 			else
 				hs.execute(string.format('echo "[WAIT] %04d - %04d = %s" >> %s', i - 1, i, diff, logFile))
 			end
 		else
-			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 400, 1485, 795, 1575" ~/.book/%04d.png %s', i, temp1))
-			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 400, 1485, 795, 1575" ~/.book/%04d.png %s', i - 1, temp2))
+			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 200, 806, 398, 852" ~/.book/%04d.png %s', i, temp1))
+			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 200, 806, 398, 852" ~/.book/%04d.png %s', i - 1, temp2))
 			u = hs.execute(string.format('/usr/local/opt/imagemagick/bin/compare -metric ae -fuzz 5%% %s %s null: 2>&1', temp1, temp2))
 			if tonumber(u) == 0 then
 				break
 			end
-			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 550, 800, 650, 900" ~/.book/%04d.png %s', i, temp1))
-			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 550, 800, 650, 900" ~/.book/%04d.png %s', i - 1, temp2))
+			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 272, 422, 322, 472" ~/.book/%04d.png %s', i, temp1))
+			hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -fill black -draw "rectangle 272, 422, 322, 472" ~/.book/%04d.png %s', i - 1, temp2))
 			u = hs.execute(string.format('/usr/local/opt/imagemagick/bin/compare -metric ae -fuzz 5%% %s %s null: 2>&1', temp1, temp2))
 			if tonumber(u) == 0 then
 				hs.execute(string.format('echo "[WAIT] %04d - %04d = %s" >> %s', i - 1, i, diff, logFile))
 			else
-				hs.eventtap.leftClick({x = pos.x + size.w - 20, y = pos.y + size.h / 2 })
+				hs.eventtap.leftClick({x = pos.x + size.w - 1, y = pos.y + size.h / 2 })
 				i = i + 1
 				noChange = 0
 			end
 
 		end
-		if i > 1600 then
+		if i > 2000 then
 			break
 		end
 	end
@@ -299,8 +313,8 @@ mkbook = function(bookName, page)
 		local pdf = os.tmpname().. '.pdf'
 		hs.execute('/usr/local/opt/imagemagick/bin/convert ~/.book/*.png -page 500x700 -compress zip '.. pdf)
 
-		hs.execute('ftp -u "ftp://userid:password@mintyeye.iptime.org/Book/zip/'..bookName..'.zip" '..temp)
-		hs.execute('ftp -u "ftp://userid:password@mintyeye.iptime.org/Book/pdf/'..bookName..'.pdf" '..pdf)
+		hs.execute('cp '..temp..' ~/Book/zip/"'..bookName..'".zip')
+		hs.execute('cp '..pdf..' ~/Book/pdf/"'..bookName..'".pdf')
 		hs.execute(string.format('mv %s ~/.book/log.txt', logFile))
 	end
 	hs.notify.new({title="Hammerspoon", informativeText="finished: "..bookName}):send()
