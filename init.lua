@@ -255,7 +255,7 @@ mkbook = function(bookName, page)
 		hs.execute('mkdir -p ~/.book')
 		hs.execute('rm -rif ~/.book/*')
 	end
-	hs.eventtap.leftClick({x = 1, y = pos.y })
+	hs.mouse.setAbsolutePosition({x = 1, y = pos.y })
 	while noChange < 10 do
 		--w = hs.application.get('BlueStacks'):allWindows()[1]
 		if w == nil or not w:isVisible() then
@@ -263,7 +263,7 @@ mkbook = function(bookName, page)
 		end
 		local f = string.format('~/.book/%04d.png', i)
 		hs.timer.usleep(300000)
-		hs.execute(string.format('screencapture  -R%d,%d,%d,%d %s', pos.x + 2, pos.y + 60, size.w - 4, size.h - 110, f))
+		hs.execute(string.format('screencapture -x -r -tpng -R%d,%d,%d,%d %s', pos.x + 2, pos.y + 60, size.w - 4, size.h - 110, f))
 		--hs.execute(string.format('screencapture -o -l%d %s', w:id(), f))
 		--hs.execute(string.format('/usr/local/opt/imagemagick/bin/convert -crop %dx%d+%d+%d %s %s', size.w - (ml + mr), size.h - (mt + mb), ml, mt, f, f))
 		--local kk = string.format('/usr/local/opt/imagemagick/bin/convert -crop %dx%d+%d+%d %s %s', size.w, size.h -70, 0, 22, f, f)
@@ -308,10 +308,12 @@ mkbook = function(bookName, page)
 		hs.execute('rm -rif ~/.book/'..string.format('%04d.png', i))
 		hs.execute('rm -rif '..temp1)
 		hs.execute('rm -rif '..temp2)
+		--hs.execute('/usr/local/bin/mogrify -format png -strip -quality 75 ~/.book/*.png')
+		hs.execute('/usr/local/bin/mogrify -colors 256 ~/.book/*.png')
 		local temp = os.tmpname().. '.zip'
 		hs.execute('zip -j '.. temp ..' ~/.book/*.png')
 		local pdf = os.tmpname().. '.pdf'
-		hs.execute('/usr/local/opt/imagemagick/bin/convert ~/.book/*.png -page 500x700 -compress zip '.. pdf)
+		hs.execute('/usr/local/opt/imagemagick/bin/convert ~/.book/*.png '.. pdf)
 
 		hs.execute('cp '..temp..' ~/Book/zip/"'..bookName..'".zip')
 		hs.execute('cp '..pdf..' ~/Book/pdf/"'..bookName..'".pdf')
